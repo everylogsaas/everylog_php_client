@@ -1,0 +1,31 @@
+{
+  "name": "everylog/everylog-php-client",
+  "type": "library",
+  "description": "EveryLog PHP client library",
+  "keywords": ["everylog", "logging", "php"],
+  "homepage": "https://github.com/everylogsaas/everylog_php_client",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "David Gasana Manzi",
+          "email": "david.gasana@devinterface.com"
+      }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+      "psr-4": {
+          "EveryLog\\": "src/"
+      }
+  },
+  "autoload-dev": {
+      "psr-4": {
+          "EveryLog\\Tests\\": "tests/"
+      }
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^7.0"
+   },
+  "require-dev": {
+    "phpunit/phpunit": "^10.1"
+  }
+}
