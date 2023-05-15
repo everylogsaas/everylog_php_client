@@ -26,10 +26,12 @@ class EveryLogPHPClient {
 
     private $options;
     private $notifyOptions;
+    private $httpClient;
 
-    public function __construct() {
+    public function __construct(Client $httpClient = null) {
         $this->options = self::SETUP_DEFAULTS;
         $this->notifyOptions = array_merge(self::NOTIFY_DEFAULTS, ["properties" => (object)[]]);
+        $this->httpClient = $httpClient ? $httpClient : new Client();
     }
 
     public function setup(array $options = []): self {
@@ -53,10 +55,8 @@ class EveryLogPHPClient {
                 "charset" => "utf-8"
             ];
     
-            $client = new Client();
-    
             try {
-                $response = $client->request('POST', $this->options["everylog_url"], [
+                $response = $this->httpClient->request('POST', $this->options["everylog_url"], [
                     'headers' => $headers,
                     'json' => $mergedOptions
                 ]);
@@ -65,7 +65,7 @@ class EveryLogPHPClient {
     
                 return json_decode($body, true);
             } catch (RequestException $e) {
-                return "Error message:\n\n" . $e;
+                return "Error message:\n\n" . $e->getMessage();
             }
         }
         
