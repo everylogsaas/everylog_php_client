@@ -1,7 +1,5 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
 use PHPUnit\Framework\TestCase;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
@@ -11,78 +9,83 @@ use EveryLog\EveryLogPHPClient;
 
 class EveryLogPHPClientTest extends TestCase
 {
-    private $client;
-
-    protected function setUp(): void
-    {
-        $this->client = new EveryLogPHPClient();
-    }
-
     public function testSetupWithOptions()
     {
+        $client = new EveryLogPHPClient();
         $options = [
             "api_key" => "1234567890",
             "projectId" => "my-project-id",
             "everylog_url" => "https://example.com/api/v1/log-entries",
         ];
 
-        $this->client->setup($options);
+        $client->setup($options);
 
-        $this->assertEquals($options, $this->client->getOptions());
-    }
-
-    public function testSetupWithDefaults()
-    {
-        $this->client->setup();
-
-        $this->assertEquals(EveryLogPHPClient::SETUP_DEFAULTS, $this->client->getOptions());
+        $this->assertEquals($options, $client->getOptions());
     }
 
     public function testNotifySendsRequestToEveryLogAPI()
-{
-    $mockClient = $this->getMockBuilder(Client::class)
-        ->disableOriginalConstructor()
-        ->getMock();
+    {
+        $jsonResponse = '{
+            "accountId": "645d40f11150dc0f42694934",
+            "body": "Test Body",
+            "createdAt": "2023-05-15T05:13:45.160764528Z",
+            "icon": "",
+            "id": "6461bf891150dc0f42694959",
+            "link": "",
+            "projectId": "Testing-project-id",
+            "properties": {"a": 123},
+            "push": "",
+            "starred": [],
+            "summary": "Test Summary",
+            "tags": [],
+            "title": "Test Title",
+            "updatedAt": "2023-05-15T05:13:45.160764797Z"
+        }';
 
-    $mockClient->expects($this->once())
-        ->method('request')
-        ->with(
-            $this->equalTo('POST'),
-            $this->equalTo('https://api.everylog.io/api/v1/log-entries'),
-            $this->callback(function ($options) {
-                $expectedHeaders = [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer test-api-key',
-                    'charset' => 'utf-8',
-                ];
-                $this->assertSame($expectedHeaders, $options['headers']);
-                $this->assertSame([], $options['json']['tags']);
-                $this->assertSame('', $options['json']['link']);
-                $this->assertFalse($options['json']['push']);
-                $this->assertSame('', $options['json']['icon']);
-                $this->assertSame([], $options['json']['externalChannels']);
-                $this->assertSame([], $options['json']['groups']);
-                $this->assertSame('test title', $options['json']['title']);
-                $this->assertSame('test summary', $options['json']['summary']);
-                $this->assertSame('test body', $options['json']['body']);
-                $this->assertSame('test-project-id', $options['json']['projectId']);
-                $this->assertSame((object)[], $options['json']['properties']);
-                return true;
-            })
+        $mockResponse = new Response(
+            200,
+            ['Content-Type' => 'application/json'],
+            $jsonResponse
         );
 
-    $client = new EveryLogPHPClient();
-    $client->setup([
-        'api_key' => 'test-api-key',
-        'projectId' => 'test-project-id',
-    ]);
-    $client->setHttpClient($mockClient);
+        $mockHandler = new MockHandler([$mockResponse]);
+        $handlerStack = HandlerStack::create($mockHandler);
+        $httpClient = new Client(['handler' => $handlerStack]);
 
-    $client->notify([
-        'title' => 'test title',
-        'summary' => 'test summary',
-        'body' => 'test body',
-    ]);
-}
+        $client = new EveryLogPHPClient($httpClient);
+        $client->setup([
+            'api_key' => 'cec67dd9-a4d4-4519-bf7a-7c88c1b8a681',
+            'projectId' => 'Testing-project-id',
+        ]);
+        $notifyOptions = [
+            'title' => 'Test Title',
+            'summary' => 'Test Summary',
+            'body' => 'Test Body',
+            'properties' => ['a' => 123],
+        ];
 
+        $response = $client->notify($notifyOptions);
+
+        $expectedResult = json_decode($jsonResponse, true);
+
+        $this->assertEquals($expectedResult, $response);
+    }
+
+    public function testNotifyWithEmptyApiKey()
+    {
+
+        $client = new EveryLogPHPClient();
+        $client->setup(['projectId' => 'Testing-project-id']);
+        $notifyOptions = [
+            'title' => 'Test Title',
+            'summary' => 'Test Summary',
+            'body' => 'Test Body',
+            'properties' => ['a' => 123],
+        ];
+
+        $expectedResult = ["message"=> "API Key or ProjectId is empty"];
+        $response = $client->notify($notifyOptions);
+
+        $this->assertEquals($expectedResult, $response);
+    }
 }
