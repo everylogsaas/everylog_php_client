@@ -46,33 +46,28 @@ class EveryLogPHPClient {
         $this->notifyOptions = array_merge($this->notifyOptions, $notifyOptions);
 
         $mergedOptions = array_merge(["projectId" => $this->options["projectId"]], $this->notifyOptions);
-
-        $headers = [
-            "Content-Type" => "application/json",
-            "Authorization" => "Bearer {$this->options['api_key']}",
-            "charset" => "utf-8"
-        ];
-
-        $client = new Client();
-
-        try {
-            $response = $client->request('POST', $this->options["everylog_url"], [
-                'headers' => $headers,
-                'json' => $mergedOptions
-            ]);
-
-            $body = $response->getBody();
-
-            return json_decode($body, true);
-        } catch (RequestException $e) {
-            return "Error message:\n\n" . $e;
+        if ($this->options['api_key']!=null){
+            $headers = [
+                "Content-Type" => "application/json",
+                "Authorization" => "Bearer {$this->options['api_key']}",
+                "charset" => "utf-8"
+            ];
+    
+            $client = new Client();
+    
+            try {
+                $response = $client->request('POST', $this->options["everylog_url"], [
+                    'headers' => $headers,
+                    'json' => $mergedOptions
+                ]);
+    
+                $body = $response->getBody();
+    
+                return json_decode($body, true);
+            } catch (RequestException $e) {
+                return "Error message:\n\n" . $e;
+            }
         }
+        
     }
-    public function setHttpClient(): void
-{
-    $httpClient = $this->getMockBuilder(EveryLog\ClientInterface::class)
-        ->getMock();
-
-    $this->setHttpClient($httpClient);
-}
 }
