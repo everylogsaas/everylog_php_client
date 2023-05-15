@@ -48,7 +48,8 @@ class EveryLogPHPClient {
         $this->notifyOptions = array_merge($this->notifyOptions, $notifyOptions);
 
         $mergedOptions = array_merge(["projectId" => $this->options["projectId"]], $this->notifyOptions);
-        if ($this->options['api_key']!=null){
+
+        if (!empty($this->options['api_key']) && !empty($this->options['projectId'])){
             $headers = [
                 "Content-Type" => "application/json",
                 "Authorization" => "Bearer {$this->options['api_key']}",
@@ -68,6 +69,8 @@ class EveryLogPHPClient {
                 return "Error message:\n\n" . $e->getMessage();
             }
         }
-        
+        else{
+            return ["message"=> "API Key or ProjectId is empty"];
+        }
     }
 }
