@@ -42,7 +42,7 @@ $client->setup(["api_key" => "your_api_key", "projectId" => "you_project_id"]);
 # @option notify_options [Dictionary] :properties
 # @option notify_options [Array]   :groups
 
-// Use the notify() method to send a log message
+// Use the notify() method to send a log message(N.B: the provided elements of the log message are samples)
 $client->notify([
     "title" => "^^^^^^^^Test Title",
     "summary" => "Test Summary********",
