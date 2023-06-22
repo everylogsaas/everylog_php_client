@@ -1,0 +1,33 @@
+{
+  "name": "everylog-php-client/everylog",
+  "type": "library",
+  "description": "EveryLog provides a simple way to receive notifications for important application events that you choose.",
+  "keywords": ["everylog", "logging", "phplogging"],
+  "homepage": "https://github.com/everylogsaas/everylog_php_client",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "David Gasana Manzi",
+          "email": "david.gasana@devinterface.com"
+      }
+  ],
+  
+  "autoload": {
+        "psr-4": {
+            "EveryLog\\": "src/"
+        }
+    },
+
+  "autoload-dev": {
+      "psr-4": {
+          "EveryLog\\": "tests/"
+      }
+  },
+  "require": {
+    "guzzlehttp/guzzle": "^7.0",
+    "php": "^8.0"
+   },
+  "require-dev": {
+    "phpunit/phpunit": "^10.1"
+  }
+}
